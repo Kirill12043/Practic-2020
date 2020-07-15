@@ -1,0 +1,37 @@
+import argparse
+from datetime import datetime, timedelta
+ importtime
+
+from influxdb import InfluxDBClient
+
+
+parser = argparse.ArgumentParser( description= 'Script that connects to db and collect mes in set time period')
+parser.add_argument( "-d", action= "store", required= True, dest= "database", help= "database name")
+parser.add_argument( "-m", action= "store", required= True, dest= "measure", help= "measurment name")
+parser.add_argument( "--addr", action= "store", dest= "addr", default= "localhost", help= "database address")
+parser.add_argument( '-t', action= "store", dest= "time", default= "0:0:0 1/1/1970" , help= "begin time")
+parser.add_argument( '-vars', action= "store", dest= "vars", nargs="*", default= [ ' * '], help= "variables that'll be " +
+                    "checked example a, b, c don't set this flag if want to find all")
+parser.add_argument( '--pd', action= "store", dest= "perd", type= int, default= 0, help= "find period in days")
+parser.add_argument( '--ps', action= "store", dest= "pers", type= int, default= 0, help= "find period in seconds")
+parser.add_argument( '--pmin', action= "store", dest= "permin", type= int, default= 0, help= "find period in minutes")
+parser.add_argument( '--ph', action= "store", dest= "perh", type= int, default= 0, help= "find period in hours")
+
+args =  parser.parse_args()
+datetime_obj = datetime.strptime(args.time, "%X %d/%m/%Y") -  datetime( 1970, 1, 1)
+period_obj =  timedelta(minutes= args.permin, hours= args.perh, seconds= args.pers, days= args.perd)
+time_fr =  int((datetime_obj /  timedelta( microseconds= 1 )) *  1000)
+string = ".join(args.vars)
+query_string =  'SELECT ' +  string +  ' FROM ' +  args.measure +   ' WHERE \" time\ " > ' >  +  str( time_fr) 
+if period_obj != timedelta():
+    time2 = time_fr + int(period_obj / timedelta(microseconds=1) * 1000)
+    query_string + =  " AND \" time\ " < "  +  str( time2)
+start_time =  time.time()
+cli = InfluxDBClient(args.addr)
+cli.switch_database(args.database)
+qr = cli.query(query_string, epoch= 'ms')
+end_time =  time.time()
+print(list(qr.get_points()))
+print( "==================")
+print(end_time-start_time, "sec")
+print(query_string)
