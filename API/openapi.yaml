@@ -1,0 +1,96 @@
+openapi: 3.0.0
+info:
+  title: Api for 6th task
+  description: Made by Ulia Zirnova MAI 2020 Summer practice
+  version: 1.0.0
+servers:
+- url: http://localhost:8081
+  description: server binds on this addr by default after docker-compose run cmd
+paths:
+  /start:
+    get:
+      tags:
+      - main_api
+      summary: Starts proccess on server that ll simulate change vars and write them
+      responses:
+        "200":
+          description: returns status with response code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+  /stop:
+    get:
+      tags:
+      - main_api
+      summary: Stops proccess that simulate change vars
+      responses:
+        "200":
+          description: returns status with response code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+  /add:
+    get:
+      tags:
+      - main_api
+      summary: Adds variable to the vars pool, from where proccess take vars for simulate
+      parameters:
+      - name: name
+        in: query
+        description: name of variable that'll be add
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: bv
+        in: query
+        description: begin value
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: returns status with response code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+  /list:
+    get:
+      tags:
+      - main_api
+      summary: Get count of stored vars and ther vals
+      responses:
+        "200":
+          description: returns status with response code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+components:
+  schemas:
+    SimpleResponse:
+      type: object
+      properties:
+        status:
+          type: string
+    ListResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        var:
+          $ref: '#/components/schemas/ListResponse_var'
+    ListResponse_var:
+      type: object
+      properties:
+        code:
+          type: string
+        text:
+          type: number
+      example: '{"a":0,"b":4.3}'
